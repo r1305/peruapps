@@ -1,0 +1,395 @@
+<html>
+<head>
+  <title>Peru Apps</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+</head>
+<body>
+  <div style="margin:2vw;">
+    <div class="jumbotron"  style="padding:40px;">
+      <h1>CRUD Person!</h1>
+      <div class="container">
+        <div class="row">
+          <button id="btn_login" style="float: left;" class="btn btn-success" onclick="showModal(3)">Ingresar</button>
+          <button id="btn_logout" style="float: left;" class="btn btn-danger hidden" onclick="eraseCookies()">Cerrar Sesión</button>
+          <button style="float: right;" class="btn btn-primary" onclick="showModal(1)">Nueva persona</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="ZipDatatable">
+          <table id="PersonTable" class="table table-bordered table-sm">
+          </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Login-->
+<div class="modal fade" id="modal_login" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Ingrese usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modal_username" class="form-control" placeholder="Usuario">
+        <input type="text" id="modal_password" class="form-control" placeholder="Contraseña">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="login()">Ingresar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal New-->
+<div class="modal fade" id="modal_new" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Nueva Persona</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modal_new_name" class="form-control" placeholder="Nombre Completo" required="">
+        <input type="text" id="modal_new_username" class="form-control" placeholder="Usuario" required="">
+        <input type="text" id="modal_new_psw" class="form-control" placeholder="Contraseña" required="">
+        <input type="file" id="modal_new_file" class="form-control" onchange="ViewImage(1)" required="">
+        <img src="" id="modal_new_photo" class="form-control hidden" style="width: 10vw;height: 15vw">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="createPerson()">Crear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal EDIT-->
+<div class="modal fade" id="modal_edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Actualizar Nombre</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modal_id" hidden="">
+        <input type="text" id="modal_name" class="form-control">
+        <input type="file" id="modal_file" class="form-control" onchange="ViewImage(2)">
+        <img src="" id="modal_photo" class="form-control" style="width: 10vw;height: 15vw">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="updatePerson()">Actualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal EDIT-->
+<div class="modal fade" id="modal_show_photo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Foto</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img src="" id="show_foto" class="form-control" style="width: 20vw;height: 25vw">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="updatePerson()">Actualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="text" hidden="" id="modal_type">
+
+<script type="text/javascript">
+  $(function(){
+    checkCookie();
+  });
+
+  function checkCookie() {
+    var username = getCookie("username");
+    if (username != "") {
+      getPersons(1);
+      $("#btn_logout").removeClass("hidden");
+      $("#btn_login").addClass("hidden");
+    } else {
+      getPersons(2);
+      $("#btn_login").removeClass("hidden");
+      $("#btn_logout").addClass("hidden");
+    }
+  }
+
+  function getCookie(cname) {
+    var username = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(username) == 0) {
+        return c.substring(username.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  function showModal(modal){
+    var modal_type = "";
+    $("#modal_type").val(modal);
+    if(modal==1){
+      modal_type="modal_new";
+    }else if(modal==2){
+      modal_type="modal_edit";
+    }else{
+      modal_type="modal_login";
+    }
+
+    $("#"+modal_type).modal("show");
+  }
+
+  function login()
+  {
+    var username = $("#modal_username").val();
+    var psw = $("#modal_password").val();
+
+    var xhr = $.ajax({
+      method:"POST",
+      url:"/person/login",
+      data:{username:username,psw:psw}
+    });
+
+    xhr.done(function(data){
+      if(data.length>0){
+        var person=data[0];
+        alert("Welcome "+person.name);
+        setCookie("username",person.name,10);
+        $("#btn_login").addClass("hidden");
+        $("#btn_logout").removeClass("hidden");
+      }else{
+        alert("Username or password incorrect!!"); 
+      }      
+    });
+
+    xhr.fail(function(data){
+      alert(data.responseJSON.message);
+    })
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    location.reload();
+  }
+
+  function eraseCookies() {
+    var d = new Date();
+    var expires = "expires=-1";
+    document.cookie = "username=" + "" + ";" + expires + ";path=/";
+    location.reload();
+  }
+
+  function createPerson()
+  {
+    var name=$("#modal_new_name").val();
+    var username=$("#modal_new_username").val();
+    var psw=$("#modal_new_psw").val();
+    var base64_photo = $("#modal_new_photo").attr("src");
+
+    var xhr = $.ajax({
+      url:"/person/new/",
+      method:"POST",
+      data:{name:name,username:username,psw:psw,photo:base64_photo}
+    });
+
+    xhr.done(function(data){
+      alert(data.message);
+      clearModal();
+    });
+
+    xhr.fail(function(data){
+      alert(data.responseJSON.message);
+    });
+  }
+
+  function getPersons(login){
+
+    var xhr = $.ajax({
+      method: "GET",
+      url: "/person/all"
+    });
+
+    xhr.done(function(data){
+      var dataSet=[];
+      if(login==1){
+        $.each(data,function(index,val){
+          var _delete="<img title='Eliminar' onclick='deletePerson(\""+val._id+"\")' src='https://img.icons8.com/material/24/000000/delete-forever--v2.png'>";
+          var _edit="<img title='Editar' onclick='editPerson(\""+val._id+"\")' src='https://img.icons8.com/android/24/000000/edit.png'>";
+          var _photo = "<img title='Ver Foto' src='https://img.icons8.com/android/24/000000/gallery.png' onclick='showImage(\""+val.photo+"\")'>";
+          var item=[(index+1),val.name,_photo,val.username,_edit,_delete];
+          dataSet.push(item);
+        });
+        $('#PersonTable').DataTable( {
+          "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
+          },
+          destroy: true,
+          data: dataSet,
+          "pageLength": 10,
+          "lengthChange": true,
+          "info":false,
+          columns: [
+          { title: "#" },
+          { title: "Nombre" },
+          { title: "Foto" },
+          { title: "Usuario" },
+          { title: "" },
+          { title: "" },
+          ]
+        });
+      }else{
+        $.each(data,function(index,val){
+          var _delete="<img title='Eliminar' onclick='deletePerson(\""+val._id+"\")' src='https://img.icons8.com/material/24/000000/delete-forever--v2.png'>";
+          var _photo = "<img title='Ver Foto' src='https://img.icons8.com/android/24/000000/gallery.png' onclick='showImage(\""+val.photo+"\")'>";
+          var item=[(index+1),val.name,val.username,_photo];
+          dataSet.push(item);
+        });
+        $('#PersonTable').DataTable( {
+          "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
+          },
+          destroy: true,
+          data: dataSet,
+          "pageLength": 10,
+          "lengthChange": true,
+          "info":false,
+          columns: [
+          { title: "#" },
+          { title: "Nombre" },
+          { title: "Usuario" },
+          { title: "Foto" }
+          ]
+        });
+      }
+    });
+  }
+
+  function editPerson(id){
+    var xhr = $.ajax({
+      method: "GET",
+      url: "/person/edit/"+id
+    });
+
+    xhr.done(function(data){
+      $("#modal_id").val(data._id);
+      $("#modal_name").val(data.name);
+      $("#modal_photo").attr("src",data.photo);
+      $("#modal_edit").modal("show");
+    });
+  }
+
+  function updatePerson()
+  {
+    var personId = $("#modal_id").val();
+    var _name = $("#modal_name").val();
+    var _photo = $("#modal_photo").attr("src");
+    var xhr = $.ajax({
+      method:"PUT",
+      url:"/person/update/"+personId,
+      data:{name:_name,photo:_photo}
+    });
+
+    xhr.done(function(data){
+      getPersons(2);
+      alert(data.message);
+      clearModal();
+    })
+  }
+
+  function clearModal()
+  {
+    var modal = $("#modal_type").val();
+    if(modal==1){
+      $("#modal_new_name").val("");
+      $("#modal_new_photo").attr("src","");
+      $("#modal_new_file").val("");
+      $("#modal_new").modal("hide");
+    }else{
+      $("#modal_id").val("");
+      $("#modal_name").val("");
+      $("#modal_photo").attr("src","");
+      $("#modal_file").val("");
+      $("#modal_edit").modal("hide");
+    }
+    location.reload();
+  }
+
+  function showImage(data)
+  {
+    $("#show_foto").attr("src",data);
+    $("#modal_show_photo").modal("show");
+  }
+
+  function ViewImage(modal){
+     function getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+    var input = "";
+    var show_input = "";
+    if(modal==1){
+      input ="modal_new_file";
+      show_input ="modal_new_photo";
+    }else{
+      input ="modal_file";
+      show_input ="modal_photo";
+    }
+    var file = document.getElementById(input).files[0];
+    getBase64(file).then(data =>$("#"+show_input).attr("src",data));
+    $("#"+show_input).removeClass("hidden");
+  }
+
+  function deletePerson(_id)
+  {
+    var xhr = $.ajax({
+      method:"DELETE",
+      url:"/person/delete/"+_id,
+      data:{personId:_id}
+    });
+
+    xhr.done(function(data){
+      alert(data.message);
+      location.reload();
+    });
+  }
+</script>
+</body>
+</html>
