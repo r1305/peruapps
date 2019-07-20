@@ -124,7 +124,7 @@ exports.update = (req, res) => {
 	                message: "Person not found with id " + req.params.personId
 	            });
 	        }
-	        res.send("Person updated!");
+	        res.send({message:"Person updated!"});
 	    }).catch(err => {
 	        if(err.kind === 'ObjectId') {
 	            return res.status(404).send({

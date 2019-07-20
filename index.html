@@ -16,7 +16,7 @@
         <div class="row">
           <button id="btn_login" style="float: left;" class="btn btn-success" onclick="showModal(3)">Ingresar</button>
           <button id="btn_logout" style="float: left;" class="btn btn-danger hidden" onclick="eraseCookies()">Cerrar Sesión</button>
-          <button style="float: right;" class="btn btn-primary" onclick="showModal(1)">Nueva persona</button>
+          <button id="btn_new" style="float: right;" class="btn btn-primary hidden" onclick="showModal(1)">Nueva persona</button>
         </div>
       </div>
       <div class="container">
@@ -114,7 +114,6 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" onclick="updatePerson()">Actualizar</button>
       </div>
     </div>
   </div>
@@ -132,11 +131,13 @@
     if (username != "") {
       getPersons(1);
       $("#btn_logout").removeClass("hidden");
+      $("#btn_new").removeClass("hidden");
       $("#btn_login").addClass("hidden");
     } else {
       getPersons(2);
       $("#btn_login").removeClass("hidden");
       $("#btn_logout").addClass("hidden");
+      $("#btn_new").addClass("hidden");
     }
   }
 
